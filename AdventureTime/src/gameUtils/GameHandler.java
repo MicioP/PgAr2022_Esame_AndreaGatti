@@ -8,35 +8,42 @@ import objects.Shield;
 import objects.Weapon;
 import xmlutils.MapReader;
 
+/**
+ * Classe con un metodo statico per gestire una partita
+ *
+ */
+
+
 public class GameHandler {
 
 	public static final String title = "Main Menu'";
 	public static final String options[] = {"Move Player", "Print Log", "Inventory"};
 	
 	
-	
+	/**
+	 * Metodo static per la gestione di una partita.
+	 * @param g Oggetto di tipo MapHandler, contente la mappa del gioco e i metodi per agire su di essa 
+	 */
 	public static void gameHandler(MapHandler g) {
 		
-		MyMenu mainMenu = new MyMenu(title, options);
-		StringBuffer logger = new StringBuffer();
+		MyMenu mainMenu = new MyMenu(title, options);  // Menu Principale
+		StringBuffer logger = new StringBuffer(); // StringBuffer per i log
 		
 		int scelta = 1;
 				
 		while(scelta != 0) {
 			System.out.println(MapReader.mapToString(g.getCurrentMap())); // Stampa la mappa
-			switch (mainMenu.scegli()) {
+			switch (mainMenu.scegli()) { 
 				case 1:   // Muovi il giocatore
 					
 					char dir = InputDati.leggiCharCheck("Insert direction: ", 'W', 'A', 'S', 'D');  // Leggi la direzione
 					
-					switch(g.movePlayer(dir)) {    // Muovi il giocatore e gestisci l'evento restituito
+					switch(g.movePlayer(dir)) {    // Muovi il giocatore nella direzione letta e gestisci l'evento restituito
 					
-						case EMPTY_BOX:  // Il player si e' mosso su una casella vuota
-							//System.out.println(MapReader.mapToString(g.getCurrentMap()));  // Stampa la mappa
+						case EMPTY_BOX:  // Il player si e' mosso su una casella vuota, in questo caso non serve fare nulla di particolare 
 							break;
 							
 						case CHEST:   // Il player si e' mosso su una chest
-							//System.out.println(MapReader.mapToString(g.getCurrentMap()));  // Stampa la mappa
 							if(InputDati.yesOrNo("You found a chest! Wanna check whats inside?")) {  // Chiedi se si vuole aprire la chest
 								InteractiveObject chestObj = g.chest();  // Recupera il riferimento dell'oggetto contenuto nella chest
 								if(chestObj instanceof Potion) {  // Se l'oggetto e' una pozione, chiedi se si vuole prenderla e metterla nello zaino (cosi' da poterla utilizzare dopo)
@@ -62,20 +69,21 @@ public class GameHandler {
 							break;
 							
 						case MONSTER:  // Il player ha incontrato un mostro
-							boolean isPlayerAlive = g.fight(logger);
+							boolean isPlayerAlive = g.fight(logger);   // Fai combattere il player e il mostro
+							// Se la funzione g.fight() restituisce true significa che il player ha battuto il mostro 
 							if(isPlayerAlive) {
 								logger.append(String.format("%s has beated a monster!\n", g.getPlayerRef().getName()));
 							}
 							else {
-								System.out.printf("%s IS DEAD!\n", g.getPlayerRef().getName());
-								if(InputDati.yesOrNo("Do you want to see game logs?")) {
+								System.out.printf("%s IS DEAD!\n", g.getPlayerRef().getName());  // Nel caso in cui il mostro abbia sconfitto il player, stampa una stringa di avviso e esci dal gioco
+								if(InputDati.yesOrNo("Do you want to see game logs?")) {  // Chiedi se si vogliono visualizzare i log 
 									System.out.println(logger);
-									return;
 								}
+								return;
 							}
 							break;
 							
-						case OUT_OF_BOUNDS: 
+						case OUT_OF_BOUNDS:  // Il player ha selezionato una direzione invalida 
 							System.out.println("You can't go outside the map!");
 							break;
 					}
@@ -84,14 +92,14 @@ public class GameHandler {
 					break;
 					
 					
-				case 2:  // Statistiche
+				case 2:  // Stampa i log raccolti finora
 					System.out.println(logger);
 					break;
 					
 					
 					
 					
-				case 3:  // Inventario
+				case 3:  // Stampa il contenuto dello zaino del giocatore
 					
 					int potionNum = g.getPlayerRef().getBackpack().size();
 					System.out.printf("You have %d potions in the backpack.\n", potionNum);   // Visualizza il numero di pozioni nello zaino del player

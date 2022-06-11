@@ -9,39 +9,47 @@ import objects.Weapon;
 import objects.InteractiveObject;
 
 
+/**
+ * Classe rappresentate un mostro.
+ *
+ */
+
 public class Monster implements Entity, MapElement<Monster>{
 
 	private static Random rand = new Random();
-	private static final ArrayList<String> dijkstraPerm = permutation("dijkstra");
-	private static int nameCount = 1;
-	private static int MAX_VALUE = 25;
+	private static final ArrayList<String> dijkstraPerm = permutation("dijkstra");  // ArrayList di permutazioni della stringa "dijkstra"
+	private static int nameCount = 1;  // Contatore per tenere traccia delle permutazioni gia' usate
+	private static int MAX_VALUE = 25;  
 	private static int MIN_VALUE = 15;
 	
 	
-	private String name;
-	private int hp;
+	private String name;  // Nome del mostro
+	private int hp;     // Vita del mostro
+	private int maxHp;  // Valore massimo della vita per il mostro (Variabile da mostro a mostro)
 	private int attackDamage = 5;
 	private int defenseValue = 5;
-	private InteractiveObject onHand;
+	private InteractiveObject onHand;  // Arma del mostro
+	
 
 		
 	public Monster() {
-		this.name = dijkstraPerm.get(nameCount++);
-		this.hp = rand.nextInt() % ((MAX_VALUE + 1 - MIN_VALUE) + MIN_VALUE);
-		this.onHand = new Weapon();
-		if(nameCount == dijkstraPerm.size()) {
+		this.name = dijkstraPerm.get(nameCount++);  // Assegna un nome al mostro 
+		this.hp = rand.nextInt() % ((MAX_VALUE + 1 - MIN_VALUE) + MIN_VALUE);  // Genera un numero casuale compreso fra MAX_VALUE e MIN_VALUE per la vita del mostro
+		this.maxHp = this.hp;
+		this.onHand = new Weapon();  // Crea una nuova arma
+		if(nameCount == dijkstraPerm.size()) {  // Se l'arraylist di nomi (permutazioni di "dijkstra") per i mostri e' finito, ricomincia da capo 
 			nameCount = 0;
 		}
 	}
 
 	
 
+
 	public String getName() {
 		return name;
 	}
 	
 
-	
 	public int getHp() {
 		return hp;
 	}
@@ -52,10 +60,14 @@ public class Monster implements Entity, MapElement<Monster>{
 	}
 	
 	
+	/**
+	 * @return true se il mostro e' morto (hp<0), false altrimenti
+	 */
 	public boolean isDead() {
 		return this.hp <= 0 ? true : false;
 	}
 	
+
 
 	public int getAttackDamage() {
 		return attackDamage;
@@ -73,7 +85,7 @@ public class Monster implements Entity, MapElement<Monster>{
 	
 	
 	public int getMaxHp() {
-		return 0;   // !!!!!!!!!!!!!!!!!!
+		return maxHp;
 	}
 	
 	
@@ -91,7 +103,9 @@ public class Monster implements Entity, MapElement<Monster>{
 	
 	
 	
-	
+	/**
+	 * Metodo per calcolare tutte le permutazioni di una data stringa
+	 */
 	private static ArrayList<String> permutation(String str) {
 	 	
 	    ArrayList<String> perm = new ArrayList<String>();

@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import mapElements.MapElement;
 import objects.*;
 
+
+/**
+ * Classe che raprresenta un player
+ *
+ */
 public class Player implements Entity, MapElement<Player>{
 
 	private static final int MAX_HP = 20;
@@ -39,6 +44,7 @@ public class Player implements Entity, MapElement<Player>{
 		return MAX_HP;
 	}
 
+	
 	
 	public void setHp(int value) {
 		this.hp += value;

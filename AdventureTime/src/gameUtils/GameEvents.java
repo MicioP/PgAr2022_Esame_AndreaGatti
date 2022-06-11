@@ -1,5 +1,10 @@
 package gameUtils;
 
+/**
+ * Enumerazione rappresentate i possibili eventi che possono accadere durante il gioco
+ *
+ */
+
 public enum GameEvents {
 
 	EMPTY_BOX,

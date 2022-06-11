@@ -7,6 +7,11 @@ import entities.*;
 import mapElements.*;
 import objects.*;
 
+/**
+ * Classe contenente metodi per eseguire azioni sulla mappa
+ *
+ */
+
 
 public class MapHandler {
 
@@ -44,18 +49,21 @@ public class MapHandler {
 	}
 	
 	
-	
+	/**
+	 * @return Il riferimento al player 
+	 */
 	public Player getPlayerRef() {
 		return playerReference.getElement();
 	}
 	
 	
 	
-	/**
-	 * @param direction
-	 * @return
-	 */
 	
+	/**
+	 * Muovi il player in una data direzione
+	 * @param direction Direzione (w, a, s, d)
+	 * @return Evento rappresentate lo stato del gioco {@link GameEvents}
+	 */
 	public GameEvents movePlayer(char direction) {
 			
 		int newRow = 0, newColumn = 0;
@@ -103,10 +111,15 @@ public class MapHandler {
 	
 	
 	
-	
+	/**
+	 * 
+	 * @param newRow Nuova posizione del player (riga)
+	 * @param newColumn (colonna)
+	 * @return
+	 */
 	private GameEvents getEvent(int newRow, int newColumn) {
 		
-		if(currentMap.get(newRow).get(newColumn) instanceof EmptyBox) { // Controlla che la nuova posizione sia una casella libera
+		if(currentMap.get(newRow).get(newColumn) instanceof EmptyBox) { // Controlla se la nuova posizione e' una casella libera
 			currentMap.get(playerLocation[0]).set(playerLocation[1], new EmptyBox());    // Sostiuisci la vecchia posizione del player con una casella vuota
 			playerLocation[0] = newRow;  
 			playerLocation[1] = newColumn;  
@@ -114,13 +127,13 @@ public class MapHandler {
 			return GameEvents.EMPTY_BOX;
 		}
 		else if(currentMap.get(newRow).get(newColumn) instanceof Chest) {  // Controlla se nuova posizione contiene una chest
-			tempChestReference = (Chest) currentMap.get(newRow).get(newColumn);
-			tempChestLocation = new int[] {newRow, newColumn};
+			tempChestReference = (Chest) currentMap.get(newRow).get(newColumn); // Salva il riferimento alla chest
+			tempChestLocation = new int[] {newRow, newColumn};  // Salva la posizione della chest
 			return GameEvents.CHEST;
 		}
 		else if(currentMap.get(newRow).get(newColumn) instanceof Monster) {  // Controlla se nella nuova posizione ci sia un mostro
-			tempMonsterReference = (Monster) currentMap.get(newRow).get(newColumn);
-			tempMonsterLocation = new int[] {newRow, newColumn};
+			tempMonsterReference = (Monster) currentMap.get(newRow).get(newColumn); // Salva il riferimento del mostro
+			tempMonsterLocation = new int[] {newRow, newColumn};  // Salva la posizione del mostro
 			return GameEvents.MONSTER;
 		}
 		
@@ -132,7 +145,10 @@ public class MapHandler {
 	
 	
 	
-	
+	/**
+	 * Metodo per far interagire il player con la chest
+	 * @return L'oggetto contenuto nella chest
+	 */
 	public InteractiveObject chest() {
 		currentMap.get(playerLocation[0]).set(playerLocation[1], new EmptyBox());    // Sostiuisci la vecchia posizione del player con una casella vuota
 		playerLocation[0] = tempChestLocation[0];
@@ -144,7 +160,11 @@ public class MapHandler {
 	
 	
 	
-	
+	/**
+	 * Metodo per far combattere un player e un mostro
+	 * @param logger StringBuffer per tenere traccia dello scontro
+	 * @return True se il player ha sconfitto il mostro, false altrimenti
+	 */
 	public boolean fight(StringBuffer logger) {
 
 		Random rand = new Random();
@@ -154,14 +174,14 @@ public class MapHandler {
 		int monsterWeaponPower;
 		Shield playerShield = null;
 		
-		if(playerReference.getElement().getOnHand() instanceof Weapon) {
+		if(playerReference.getElement().getOnHand() instanceof Weapon) { // Verifica se il player ha una arma
 			playerWeaponPower = ((Weapon) playerReference.getElement().getOnHand()).getDamage(); 
 		}
-		else if(playerReference.getElement().getOnHand() instanceof Shield) {
+		else if(playerReference.getElement().getOnHand() instanceof Shield) {  // Verifica se il player ha uno scudo
 			playerShield = (Shield) playerReference.getElement().getOnHand();
 		}
 		
-		monsterWeaponPower = ((Weapon) tempMonsterReference.getElement().getOnHand()).getDamage();
+		monsterWeaponPower = ((Weapon) tempMonsterReference.getElement().getOnHand()).getDamage(); 
 		
 		
 		int playerDamage = (2*playerWeaponPower*playerReference.getElement().getAttackDamage())/(25*playerReference.getElement().getDefenseValue());
@@ -170,8 +190,7 @@ public class MapHandler {
 		int monsterDamage = (2*monsterWeaponPower*tempMonsterReference.getElement().getAttackDamage())/(25*tempMonsterReference.getElement().getDefenseValue());
 		monsterDamage = (int) Math.floor(monsterDamage * mod);
 		
-		playerReference.getElement().isDead();
-		tempMonsterReference.getElement().isDead();
+		
 		
 		while(!playerReference.getElement().isDead() & !tempMonsterReference.getElement().isDead()) {
 			tempMonsterReference.getElement().setHp(0 - playerDamage);

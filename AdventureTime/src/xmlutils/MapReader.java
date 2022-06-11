@@ -13,13 +13,22 @@ import mapElements.Wall;
 import xmlutils.XMLReader;
 
 
-
+/**
+ * Classe per leggere una mappa da file xml
+ * 
+ *
+ */
 
 public class MapReader {
 
 	private static Pattern contentPattern = Pattern.compile("Content of Tag : (.)");
 	
 	
+	/**
+	 * @param f File xml della mappa
+	 * @param playerName Nome del giocatore (Per creare l'oggetto Player)
+	 * @return Matrice di MapElement (ArrayList di ArrayList<MapElement>)
+	 */
 	
 	public static ArrayList<ArrayList<MapElement>> readMapFromXML(File f, String playerName) {
 		
@@ -116,7 +125,11 @@ public class MapReader {
 		
 	
 	
-	
+	/**
+	 * Metodo per generare una stringa rappresentate la mappa
+	 * @param map Mappa da rappresentare
+	 * @return Stringa rappresentate la mappa
+	 */
 	public static StringBuffer mapToString(ArrayList<ArrayList<MapElement>> map) {
 		
 		StringBuffer str = new StringBuffer();

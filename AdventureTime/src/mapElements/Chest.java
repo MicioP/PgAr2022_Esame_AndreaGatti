@@ -7,6 +7,11 @@ import objects.Shield;
 import objects.Weapon;
 import objects.InteractiveObject;
 
+/**
+ * Classe che rappresenta una chest
+ *
+ */
+
 public class Chest implements MapElement<Chest>{
 
 	private static final double POTION_PROBABILITY = 0.25;

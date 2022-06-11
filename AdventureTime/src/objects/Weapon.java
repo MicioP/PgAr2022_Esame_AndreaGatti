@@ -5,9 +5,13 @@ import java.util.function.Consumer;
 
 import entities.*;
 
+/**
+ * Classe che rappresenta un'arma
+ *
+ */
+
 public class Weapon implements InteractiveObject{
 	
-	private static final double WEAPON_PROBABILITY = 0.40;
 	private static final int MAX_VALUE = 55;
 	private static final int MIN_VALUE = 35;
 	private static final String[] weaponNames = {"Excalibur", "Durlindana", "Tizona", "Attila", "Dhu", "Gramr", "Marakumo"};

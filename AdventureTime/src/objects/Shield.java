@@ -4,10 +4,15 @@ import java.util.function.Consumer;
 
 import entities.*;
 
+/**
+ * Classe che rappresenta uno scudo
+ * @author Andrea
+ *
+ */
+
 public class Shield implements InteractiveObject{
 
-	
-	private static final double SHIELD_PROBABILITY = 0.35;
+
 	private int shieldHp = 5;
 
 	/*

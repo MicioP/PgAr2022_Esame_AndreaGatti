@@ -3,6 +3,11 @@ package entities;
 import objects.InteractiveObject;
 
 
+/**
+ * Interfaccia che definisce i metodi che una entita' deve avere
+ *
+ */
+
 public interface Entity {
 
 	public String getName();
