@@ -21,7 +21,7 @@ public class MapReader {
 	
 	
 	
-	public static ArrayList<ArrayList<MapElement>> readMapFromXML(File f) {
+	public static ArrayList<ArrayList<MapElement>> readMapFromXML(File f, String playerName) {
 		
 		ArrayList< ArrayList<MapElement> > map = new ArrayList< ArrayList<MapElement> >();
 		//MapElement<Entity>[][] map = new MapElement<Entity>[10][10];
@@ -57,7 +57,7 @@ public class MapReader {
 									rowList.add(e);
 									break;
 								case "O": 
-									MapElement<Player> p = new Player(null);
+									MapElement<Player> p = new Player(playerName);
 									rowList.add(p);
 									break;
 								case "M": 

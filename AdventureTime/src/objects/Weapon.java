@@ -10,14 +10,22 @@ public class Weapon implements InteractiveObject{
 	private static final double WEAPON_PROBABILITY = 0.40;
 	private static final int MAX_VALUE = 55;
 	private static final int MIN_VALUE = 35;
+	private static final String[] weaponNames = {"Excalibur", "Durlindana", "Tizona", "Attila", "Dhu", "Gramr", "Marakumo"};
+	private static int nameCount;
 	private static Random rand = new Random();
 	
 	private int damage;
+	private String name;
 	
 	// Aggiungi nome!
 	
 	public Weapon() {
-		this.damage = rand.nextInt() % ((MAX_VALUE + 1 - MIN_VALUE) + MIN_VALUE);
+		this.damage = Math.abs(rand.nextInt() % ((MAX_VALUE + 1 - MIN_VALUE) + MIN_VALUE));
+		this.name = weaponNames[nameCount++];
+		if(nameCount == weaponNames.length) {
+			nameCount = 0;
+		}
+		
 	}
 	
 	/*
@@ -35,6 +43,10 @@ public class Weapon implements InteractiveObject{
 	
 	public int getDamage() {
 		return damage;
+	}
+	
+	public String getName() {
+		return name;
 	}
 
 }

@@ -29,6 +29,9 @@ public class Monster implements Entity, MapElement<Monster>{
 		this.name = dijkstraPerm.get(nameCount++);
 		this.hp = rand.nextInt() % ((MAX_VALUE + 1 - MIN_VALUE) + MIN_VALUE);
 		this.onHand = new Weapon();
+		if(nameCount == dijkstraPerm.size()) {
+			nameCount = 0;
+		}
 	}
 
 	

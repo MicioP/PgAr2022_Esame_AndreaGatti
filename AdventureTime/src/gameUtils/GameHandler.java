@@ -1,165 +1,117 @@
 package gameUtils;
 
-import java.util.ArrayList;
-
-import entities.*;
-import mapElements.*;
-import objects.*;
-
+import main.InputDati;
+import main.MyMenu;
+import objects.InteractiveObject;
+import objects.Potion;
+import objects.Shield;
+import objects.Weapon;
+import xmlutils.MapReader;
 
 public class GameHandler {
 
-	private int[] playerLocation; // Posizione del player [riga, colonna]
-	private MapElement<Player> playerReference;
-	private MapElement<Chest> tempChestReference;
-	private ArrayList<ArrayList<MapElement>> currentMap;
+	public static final String title = "Main Menu'";
+	public static final String options[] = {"Move Player", "Print Log", "Inventory"};
 	
 	
 	
-	
-	public GameHandler(ArrayList<ArrayList<MapElement>> map) {
-		this.currentMap = map;
+	public static void gameHandler(MapHandler g) {
 		
-		EXTERNAL_LOOP:    // Chiedo venia per l'uso dell'etichetta  
-		for(int row = 0; row < map.size(); row++) {			// Individua il player nella mappa, si presuppone ci sia un unico giocatore
-			for(int column = 0; column < map.get(row).size(); column++) {
-				if(map.get(row).get(column) instanceof Player) {
-					playerReference = (Player) map.get(row).get(column);
-					playerLocation = new int[] {row, column};
-					break EXTERNAL_LOOP;
-				}
-			}
+		MyMenu mainMenu = new MyMenu(title, options);
+		StringBuffer logger = new StringBuffer();
+		
+		int scelta = 1;
+				
+		while(scelta != 0) {
+			System.out.println(MapReader.mapToString(g.getCurrentMap())); // Stampa la mappa
+			switch (mainMenu.scegli()) {
+				case 1:   // Muovi il giocatore
+					
+					char dir = InputDati.leggiCharCheck("Insert direction: ", 'W', 'A', 'S', 'D');  // Leggi la direzione
+					
+					switch(g.movePlayer(dir)) {    // Muovi il giocatore e gestisci l'evento restituito
+					
+						case EMPTY_BOX:  // Il player si e' mosso su una casella vuota
+							//System.out.println(MapReader.mapToString(g.getCurrentMap()));  // Stampa la mappa
+							break;
+							
+						case CHEST:   // Il player si e' mosso su una chest
+							//System.out.println(MapReader.mapToString(g.getCurrentMap()));  // Stampa la mappa
+							if(InputDati.yesOrNo("You found a chest! Wanna check whats inside?")) {  // Chiedi se si vuole aprire la chest
+								InteractiveObject chestObj = g.chest();  // Recupera il riferimento dell'oggetto contenuto nella chest
+								if(chestObj instanceof Potion) {  // Se l'oggetto e' una pozione, chiedi se si vuole prenderla e metterla nello zaino (cosi' da poterla utilizzare dopo)
+									if(InputDati.leggiChar("You found a Potion! Press E to put it in your backpack.") == 'E') {
+										logger.append(String.format("%s picked up a potion.\n", g.getPlayerRef().getName()));
+										g.getPlayerRef().addItemToBackpack((Potion) chestObj);
+									}
+								}
+								else if(chestObj instanceof Shield) {  // Se l'oggetto e' uno scudo, chiedi se si vuole raccoglierlo
+									if(InputDati.leggiChar("You found a Shield! Press E to grab it.") == 'E') {
+										logger.append(String.format("%s picked up a shield.\n", g.getPlayerRef().getName()));
+										chestObj.action().accept(g.getPlayerRef());
+									}
+								}
+								else if(chestObj instanceof Weapon){   // Se l'oggetto e' un'arma, chiedi se si vuole raccoglierlo
+									if(InputDati.leggiChar(String.format("You found a Weapon %s (Damage: %d)! Press E to grab it.", ((Weapon) chestObj).getName() ,((Weapon) chestObj).getDamage())) == 'E') {
+										logger.append(String.format("%s picked up a weapon named %s.\n", g.getPlayerRef().getName(), ((Weapon) chestObj).getName()));
+										chestObj.action().accept(g.getPlayerRef());
+									}
+									
+								}
+							}
+							break;
+							
+						case MONSTER:  // Il player ha incontrato un mostro
+							boolean isPlayerAlive = g.fight(logger);
+							if(isPlayerAlive) {
+								logger.append(String.format("%s has beated a monster!\n", g.getPlayerRef().getName()));
+							}
+							else {
+								System.out.printf("%s IS DEAD!\n", g.getPlayerRef().getName());
+								if(InputDati.yesOrNo("Do you want to see game logs?")) {
+									System.out.println(logger);
+									return;
+								}
+							}
+							break;
+							
+						case OUT_OF_BOUNDS: 
+							System.out.println("You can't go outside the map!");
+							break;
+					}
+					
+					
+					break;
+					
+					
+				case 2:  // Statistiche
+					System.out.println(logger);
+					break;
+					
+					
+					
+					
+				case 3:  // Inventario
+					
+					int potionNum = g.getPlayerRef().getBackpack().size();
+					System.out.printf("You have %d potions in the backpack.\n", potionNum);   // Visualizza il numero di pozioni nello zaino del player
+					if(potionNum > 0) {  // Se c'e' almeno una pozione, permetti di usarla.
+						if(InputDati.leggiChar("Press E to use a potion.") == 'E') {
+							Potion p = g.getPlayerRef().getBackpack().get(potionNum - 1);  // Recupera la pozione 
+							p.action().accept(g.getPlayerRef());   // Utilizza la pozione
+							g.getPlayerRef().removeItemToBackpack(p);   // Rimuovi la pozione usata dallo zaino
+							logger.append(String.format("%d used a potion.\n", g.getPlayerRef().getName()));
+						}						
+					}
+					break;
+		
+			}	
+		
 		}
 		
-	}
-	
-	
-	public ArrayList<ArrayList<MapElement>> getCurrentMap(){
-		return currentMap;
-	}
-	
-	
-	public Player getPlayerRef() {
-		return playerReference.getElement();
-	}
-	
-	
-	
-	/**
-	 * Per semplificare leggermente le dinamiche, ho deciso che un player non puo' "stare sopra" una chest
-	 * @param direction
-	 * @return
-	 */
-	
-	public GameEvents movePlayer(char direction) {
-			
-		int newRow = 0, newColumn = 0;
-		
-		switch (direction) {
-		
-			case 'W': // Sposta il giocatore di una casella verso l'alto
-				newRow = playerLocation[0] - 1;  // Calcola la nuova posizione 
-				newColumn = playerLocation[1];
-				if(!(newRow < 0)) {  // Controlla che la nuova posizione non vada al di fuori della mappa
-					if(currentMap.get(newRow).get(newColumn) instanceof EmptyBox) { // Controlla che la nuova posizione sia una casella libera
-						playerLocation[0] = newRow;
-						currentMap.get(newRow).set(newColumn, playerReference);    // Aggiorna la posizione sulla mappa
-						return GameEvents.EMPTY_BOX;
-					}
-					else if(currentMap.get(newRow).get(newColumn) instanceof Chest) {  // Controlla se nuova posizione contiene una chest
-						tempChestReference = (Chest) currentMap.get(newRow).get(newColumn);
-						return GameEvents.CHEST;
-					}
-					else if(currentMap.get(newRow).get(newColumn) instanceof Monster) {  // Controlla se nella nuova posizione ci sia un mostro
-						// Incontro
-						return GameEvents.MONSTER;
-					}
-				}
-				return GameEvents.OUT_OF_BOUNDS;
+		return;
 				
-			case 'A':  // Sposta il giocatore di una casella verso sx
-				newRow = playerLocation[0];  // Calcola la nuova posizione 
-				newColumn = playerLocation[1] - 1;
-				if(!(newColumn < 0)) {
-					if(currentMap.get(newRow).get(newColumn) instanceof EmptyBox) { // Controlla che la nuova posizione sia una casella libera
-						playerLocation[1] = newColumn;
-						currentMap.get(newRow).set(newColumn, playerReference);   // Aggiorna la posizione sulla mappa
-						return GameEvents.EMPTY_BOX;
-					}
-					else if(currentMap.get(newRow).get(newColumn) instanceof Chest) {  // Controlla se nuova posizione contiene una chest
-						tempChestReference = (Chest) currentMap.get(newRow).get(newColumn);
-						return GameEvents.CHEST;
-					}
-					else if(currentMap.get(newRow).get(newColumn) instanceof Monster) {  // Controlla se nella nuova posizione ci sia un mostro
-						return GameEvents.MONSTER;
-					}
-				}
-				return GameEvents.OUT_OF_BOUNDS;
-				
-			case 'S':  // Sposta il giocatore di una casella verso il basso
-				newRow = playerLocation[0] + 1;  // Calcola la nuova posizione 
-				newColumn = playerLocation[1];
-				if(!(newRow > currentMap.size())) {
-					if(currentMap.get(newRow).get(newColumn) instanceof EmptyBox) { // Controlla che la nuova posizione sia una casella libera
-						playerLocation[0] = newRow;
-						currentMap.get(newRow).set(newColumn, playerReference);  // Aggiorna la posizione sulla mappa
-						return GameEvents.EMPTY_BOX;
-					}
-					else if(currentMap.get(newRow).get(newColumn) instanceof Chest) {  // Controlla se nuova posizione contiene una chest
-						tempChestReference = (Chest) currentMap.get(newRow).get(newColumn);
-						return GameEvents.CHEST;
-					}
-					else if(currentMap.get(newRow).get(newColumn) instanceof Monster) {  // Controlla se nella nuova posizione ci sia un mostro
-						return GameEvents.MONSTER;
-					}
-				}
-				return GameEvents.OUT_OF_BOUNDS;
-				
-			case 'D':  // Sposta il giocatore di una casella verso dx
-				newRow = playerLocation[0];  // Calcola la nuova posizione 
-				newColumn = playerLocation[1] + 1;
-				if(!(newColumn > currentMap.get(newRow).size())) {
-					if(currentMap.get(newRow).get(newColumn) instanceof EmptyBox) { // Controlla che la nuova posizione sia una casella libera
-						playerLocation[1] = newColumn;
-						currentMap.get(newRow).set(newColumn, playerReference); // Aggiorna la posizione sulla mappa
-						return GameEvents.EMPTY_BOX;
-					}
-					else if(currentMap.get(newRow).get(newColumn) instanceof Chest) {  // Controlla se nuova posizione contiene una chest
-						tempChestReference = (Chest) currentMap.get(newRow).get(newColumn); 
-						currentMap.get(newRow).set(newColumn, playerReference); 
-						return GameEvents.CHEST;
-					}
-					else if(currentMap.get(newRow).get(newColumn) instanceof Monster) {  // Controlla se nella nuova posizione ci sia un mostro
-						return GameEvents.MONSTER;
-					}
-				}
-				return GameEvents.OUT_OF_BOUNDS;
-				
-		}
-		
-		return GameEvents.OUT_OF_BOUNDS;
-			
 	}
-	
-	
-	
-	public InteractiveObject chest() {	
-		return tempChestReference.getElement().getObj();
-	}
-	
-	
-	
-	
-	public void fight() {
-		
-	}
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	

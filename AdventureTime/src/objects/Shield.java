@@ -22,8 +22,12 @@ public class Shield implements InteractiveObject{
 	}
 	
 	
-	public void decreaseShieldHp(int value) {
-		this.shieldHp -= value;
+	public int getHp() {
+		return shieldHp;
+	}
+	
+	public void setHp(int value) {
+		this.shieldHp += value;
 	}
 	
 	public boolean isBroken() {
