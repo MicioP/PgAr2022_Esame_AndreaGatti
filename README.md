@@ -1,12 +1,12 @@
-# PgAr2022_Esame_ < AndreaGatti >
+# PgAr2022_Esame_ <AndreaGatti>
 ## Candidato
 
 |                |                 |
 | -------------- | --------------- |
-| Nome           | ** < Andrea >** |
-| Cognome        | ** < Gatti >**  |
-| Matricola      | ** < 737012 >** |
-| Corso di Studi | ** < Ingegneria Informatica >** |
+| Nome           | **<Andrea>** |
+| Cognome        | **<Gatti>**  |
+| Matricola      | **<737012>** |
+| Corso di Studi | **<Ingegneria Informatica>** |
 
 ## Moduli Implementati
 
